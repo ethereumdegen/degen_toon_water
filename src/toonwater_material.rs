@@ -62,15 +62,15 @@ pub struct ToonWaterMaterialUniforms {
 impl Default for ToonWaterMaterialUniforms {
     fn default() -> Self {
         Self {
-		    depth_gradient_shallow: Color::rgba(0.4,0.4,0.8,1.0),
-            depth_gradient_deep: Color::rgba(0.2,0.2,0.4,1.0),
+		    depth_gradient_shallow: Color::rgba(0.325, 0.807, 0.971, 0.725),
+            depth_gradient_deep: Color::rgba(0.086, 0.407, 1.0, 0.749),
             depth_max_distance: 1.0,
             foam_color: Color::rgba(0.9,0.9,0.9,1.0),
-            surface_noise_scroll: Vec2::new(1.0,1.0),
-            surface_noise_cutoff: 0.2,
-            surface_distortion_amount: 1.0,
-            foam_max_distance: 1.0,
-            foam_min_distance: 0.0,
+            surface_noise_scroll: Vec2::new(0.2,0.2),
+            surface_noise_cutoff:  0.777,
+            surface_distortion_amount:  0.27,
+            foam_max_distance: 0.4,  //foam for an obstruction in the water 
+            foam_min_distance: 0.04, //foam at shore
         }
     }
 }

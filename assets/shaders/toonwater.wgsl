@@ -15,7 +15,7 @@
   #import bevy_pbr::prepass_utils
 
 
-#import bevy_pbr::mesh_view_bindings view
+// #import bevy_pbr::mesh_view_bindings view
 
 
 
@@ -81,38 +81,42 @@ fn fragment(
 ) -> @location(0) vec4<f32> {
     let uv = mesh.uv  ;
     
+    //saturate clamps between 0 and 1 
  
-
-    let sample_index = 0u;
-    let depth = prepass_utils::prepass_depth(mesh.position,sample_index);
-    let prepass_normal = prepass_utils::prepass_normal(mesh.position,sample_index);
- 
-    //let depth_linear = -(view.view_proj[3][2] / (depth - view.view_proj[2][2])); 
+    let depth = prepass_utils::prepass_depth(mesh.position,0u);
+    let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
+  
     let depth_diff = mesh.position.z - depth ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
     let water_color = mix(toon_water_uniforms.depth_gradient_shallow, toon_water_uniforms.depth_gradient_deep, water_depth_diff);
 
-    let normal = prepass_normal ; //textureLoad(normal_texture, vec2<i32>(frag_coord.xy), 0).xyz;
-    let normal_dot = saturate(dot(normal,  normalize(mesh.world_normal) ));
+   // normal dot is a  grayscale map showing stuff under the water , to make our foam stand out on logs but not on shore 
+    let normal_dot = saturate(dot(prepass_normal,  normalize(mesh.world_normal) ));
     let foam_distance = mix(toon_water_uniforms.foam_max_distance, toon_water_uniforms.foam_min_distance, normal_dot);  
     let foam_depth_diff = saturate(depth_diff / foam_distance);
 
+    //foam depth affects surface noise 
     let surface_noise_cutoff = foam_depth_diff * toon_water_uniforms.surface_noise_cutoff;
-    
-    let distort_uv = uv * vec2<f32>(textureDimensions(surface_distortion_texture)); 
-    let distort_sample = (textureLoad(surface_distortion_texture, vec2<i32>(distort_uv), 0).rg * 2.0 - 1.0) * toon_water_uniforms.surface_distortion_amount;
+        
+          let distort_uv_scale = 1.0;
+
+    let distort_uv = uv  * distort_uv_scale *  vec2<f32>(textureDimensions(surface_distortion_texture)); 
+    let distort_sample = (textureLoad(surface_distortion_texture, vec2<i32>(distort_uv), 0).rg * 2.0 - 1.0) * 1.0; //toon_water_uniforms.surface_distortion_amount
 
 
-    let time_base = globals.time % 1.0;
+    let time_base = sin( globals.time  )  ;
 
+    //this is busted 
     let noise_uv = vec2<f32>(
-        (uv.x + time_base * toon_water_uniforms.surface_noise_scroll.x) + distort_sample.x, 
-        (uv.y + time_base * toon_water_uniforms.surface_noise_scroll.y) + distort_sample.y
-    );
-    let surface_noise_sample = textureLoad(surface_noise_texture, vec2<i32>(noise_uv * vec2<f32>(textureDimensions(surface_noise_texture))), 0).r;
+       ( (uv.x + (time_base * toon_water_uniforms.surface_noise_scroll.x)   )   + distort_sample.x  ) %1.0 , 
+       ( (uv.y + (time_base * toon_water_uniforms.surface_noise_scroll.y)   )   + distort_sample.y  ) %1.0   
+    );  
+
+  
+    let surface_noise_sample = textureLoad(surface_noise_texture, vec2<i32>(noise_uv * vec2<f32>(textureDimensions(surface_noise_texture))), 0) ;
     
-    let surface_noise = smoothstep(surface_noise_cutoff - 0.01, surface_noise_cutoff + 0.01, surface_noise_sample);
+    let surface_noise = smoothstep(surface_noise_cutoff - 0.01, surface_noise_cutoff + 0.01, surface_noise_sample.r);
 
     var surface_noise_color = toon_water_uniforms.foam_color;
     surface_noise_color.a *= surface_noise;
@@ -120,7 +124,8 @@ fn fragment(
     var color = alpha_blend(surface_noise_color, water_color);
 
 
-  //  color = vec4(water_depth_diff ,water_depth_diff ,water_depth_diff ,1.0);
+//   color = vec4(surface_noise_sample.r  ,surface_noise_sample.g  , surface_noise_sample.b  ,1.0);
+    //color = vec4(noise_uv.x  ,noise_uv.y  , 0.0 ,1.0);
     return color;
 }
 
@@ -131,18 +136,4 @@ fn alpha_blend(top: vec4<f32>, bottom: vec4<f32>) -> vec4<f32> {
 }
 
 
- 
-
-@vertex
-fn vertex(
-    @location(0) position: vec3<f32>,
-    @location(1) normal: vec3<f32>,
-    // other attributes...
-) -> VertexOutput {
-    var out: VertexOutput;
-   // out.clip_position = uniforms.view_proj * vec4<f32>(position, 1.0);
-  //  out.world_position = uniforms.model * vec4<f32>(position, 1.0);
-  //  out.uv = uv;
-  //  out.view_normal = normalize(uniforms.view * uniforms.model * vec4<f32>(normal, 0.0)).xyz;
-    return out;
-}
+  
