@@ -171,8 +171,22 @@ fn setup(
 
 
 
+
+
     commands.spawn(PbrBundle {
-        mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+        mesh: meshes.add(Cuboid::new(555.0, 1.0, 555.0)),
+        material: materials.add(StandardMaterial {
+            base_color: Color::rgb(0.1,0.1,0.1).into(),
+            ..Default::default()
+        }),
+        transform: Transform::from_xyz(0.0, -7.0, 0.0),
+        ..default()
+    });
+
+
+
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Cuboid::new(1.0, 7.0, 1.0)),
         material: materials.add(StandardMaterial {
             base_color: Color::rgb(0.6,0.6,0.6).into(),
             ..Default::default()
@@ -188,7 +202,18 @@ fn setup(
             base_color: Color::rgb(0.6,0.6,0.6).into(),
             ..Default::default()
         }),
-        transform: Transform::from_xyz(0.0, -4.2, 0.0),
+        transform: Transform::from_xyz(0.0, -0.2, 0.0),
+        ..default()
+    });
+
+
+   commands.spawn(PbrBundle {
+        mesh: meshes.add(Torus::new(1.0, 1.0 )),
+        material: materials.add(StandardMaterial {
+            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            ..Default::default()
+        }),
+        transform: Transform::from_xyz(2.0, -0.6, 2.0),
         ..default()
     });
 
@@ -196,7 +221,7 @@ fn setup(
     commands.spawn((
         Camera3dBundle {
             camera: Camera {
-                hdr: true, // 1. HDR must be enabled on the camera
+                hdr: true, // 
                 ..default()
             },
             tonemapping: Tonemapping::TonyMcMapface,

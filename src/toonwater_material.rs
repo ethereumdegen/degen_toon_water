@@ -26,6 +26,8 @@ pub fn build_toon_water_material(
 			            alpha_mode: AlphaMode::Blend,
 			            double_sided: true,
 			            cull_mode: None,
+
+
 			            ..Default::default()
 			        },
 			        extension: ToonWaterMaterialBase {
@@ -63,14 +65,14 @@ impl Default for ToonWaterMaterialUniforms {
     fn default() -> Self {
         Self {
 		    depth_gradient_shallow: Color::rgba(0.325, 0.807, 0.971, 0.725),
-            depth_gradient_deep: Color::rgba(0.086, 0.407, 1.0, 0.749),
+            depth_gradient_deep: Color::rgba(0.086, 0.307, 0.7, 0.949),
             depth_max_distance: 1.0,
             foam_color: Color::rgba(0.9,0.9,0.9,1.0),
-            surface_noise_scroll: Vec2::new(0.2,0.2),
-            surface_noise_cutoff:  0.777,
-            surface_distortion_amount:  0.27,
-            foam_max_distance: 0.4,  //foam for an obstruction in the water 
-            foam_min_distance: 0.04, //foam at shore
+            surface_noise_scroll: Vec2::new(0.1,0.1),
+            surface_noise_cutoff:  0.6,
+            surface_distortion_amount:  0.14,
+            foam_max_distance: 19.0,  //foam for an obstruction in the water (from normal dot product)
+            foam_min_distance: 0.014, //foam at shore
         }
     }
 }
