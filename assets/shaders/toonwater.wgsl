@@ -87,8 +87,8 @@ fn fragment(
     let depth = prepass_utils::prepass_depth(mesh.position,sample_index);
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,sample_index);
  
-    let depth_linear = -(view.view_proj[3][2] / (depth - view.view_proj[2][2])); 
-    let depth_diff = depth_linear - mesh.position.z;
+    //let depth_linear = -(view.view_proj[3][2] / (depth - view.view_proj[2][2])); 
+    let depth_diff = mesh.position.z - depth ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
     let water_color = mix(toon_water_uniforms.depth_gradient_shallow, toon_water_uniforms.depth_gradient_deep, water_depth_diff);
@@ -120,7 +120,7 @@ fn fragment(
     var color = alpha_blend(surface_noise_color, water_color);
 
 
-    //color = vec4(0.4,0.4,0.7,1.0);
+  //  color = vec4(water_depth_diff ,water_depth_diff ,water_depth_diff ,1.0);
     return color;
 }
 
