@@ -1,6 +1,7 @@
 //! This example demonstrates the built-in 3d shapes in Bevy.
 //! The scene includes a patterned texture and a rotation for visualizing the normals and UVs.
 
+use bevy::core_pipeline::prepass::NormalPrepass;
 use std::f32::consts::PI;
 
   
@@ -132,13 +133,15 @@ fn setup(
     let base_color = Color::rgba(0.2,0.2,0.6,1.0);
     let emissive = Color::rgba(0.2,0.2,0.6,1.0);
 
-    let base_color_texture_handle =  asset_server.load("textures/water_base.png");
+    let surface_noise_texture_handle =  asset_server.load("textures/PerlinNoise.png");
+    let surface_distortion_texture_handle =  asset_server.load("textures/WaterDistortion.png");
  
     let toon_water_material_handle = toon_water_materials.add( 
          build_toon_water_material (
             base_color,
             emissive,
-            base_color_texture_handle,  
+            surface_noise_texture_handle,  
+             surface_distortion_texture_handle,  
         ) );
 
 
@@ -160,11 +163,24 @@ fn setup(
     });
 
     // ground plane
-    commands.spawn(MaterialMeshBundle {
-        mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
-        material:  toon_water_material_handle,
+    commands.spawn((MaterialMeshBundle {
+            mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
+            material:  toon_water_material_handle,
+            ..default()
+        } ));
+
+
+
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+        material: materials.add(StandardMaterial {
+            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            ..Default::default()
+        }),
+        transform: Transform::from_xyz(0.0, 0.2, 0.0),
         ..default()
     });
+
 
     commands.spawn((
         Camera3dBundle {
@@ -181,6 +197,7 @@ fn setup(
 
          BloomSettings::OLD_SCHOOL,
         DepthPrepass,
+        NormalPrepass,  //needed for water ! 
        
     ));
 }

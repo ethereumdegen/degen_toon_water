@@ -11,9 +11,10 @@ pub type ToonWaterMaterial = ExtendedMaterial<StandardMaterial, ToonWaterMateria
 
 
 pub fn build_toon_water_material(
-   	  base_color: Color,
+   	base_color: Color,
     emissive: Color,
-    texture_handle: Handle<Image>,
+    surface_noise_texture_handle: Handle<Image>,
+    surface_distortion_texture_handle: Handle<Image>,
     ) ->   ToonWaterMaterial {
 
   
@@ -28,10 +29,10 @@ pub fn build_toon_water_material(
 			            ..Default::default()
 			        },
 			        extension: ToonWaterMaterialBase {
-			            base_color_texture: Some(texture_handle),
+			          //  base_color_texture: Some(texture_handle),
 			            custom_uniforms: ToonWaterMaterialUniforms::default(),
-			            surface_noise_texture: None,
-			            surface_distortion_texture: None,
+			            surface_noise_texture: Some(surface_noise_texture_handle),
+			            surface_distortion_texture: Some(surface_distortion_texture_handle),
 			            //depth_texture: None,
 			            //normal_texture: None,
 			        },
@@ -46,10 +47,10 @@ pub type ToonWaterMaterialBundle = MaterialMeshBundle<ToonWaterMaterial >;
 #[derive(Clone, ShaderType, Debug)]
 pub struct ToonWaterMaterialUniforms {
 
-	pub depth_gradient_shallow: Vec4,
-    pub depth_gradient_deep: Vec4,
+	pub depth_gradient_shallow: Color,
+    pub depth_gradient_deep: Color,
     pub depth_max_distance: f32,
-    pub foam_color: Vec4,
+    pub foam_color: Color,
     pub surface_noise_scroll: Vec2,
     pub surface_noise_cutoff: f32,
     pub surface_distortion_amount: f32,
@@ -61,14 +62,14 @@ pub struct ToonWaterMaterialUniforms {
 impl Default for ToonWaterMaterialUniforms {
     fn default() -> Self {
         Self {
-		    depth_gradient_shallow: Vec4::default(),
-            depth_gradient_deep: Vec4::default(),
-            depth_max_distance: 0.0,
-            foam_color: Vec4::default(),
-            surface_noise_scroll: Vec2::default(),
-            surface_noise_cutoff: 0.0,
-            surface_distortion_amount: 0.0,
-            foam_max_distance: 0.0,
+		    depth_gradient_shallow: Color::rgba(0.4,0.4,0.8,1.0),
+            depth_gradient_deep: Color::rgba(0.2,0.2,0.4,1.0),
+            depth_max_distance: 10.0,
+            foam_color: Color::rgba(0.9,0.9,0.9,1.0),
+            surface_noise_scroll: Vec2::new(1.0,1.0),
+            surface_noise_cutoff: 0.2,
+            surface_distortion_amount: 1.0,
+            foam_max_distance: 1.0,
             foam_min_distance: 0.0,
         }
     }
@@ -78,9 +79,9 @@ impl Default for ToonWaterMaterialUniforms {
 pub struct ToonWaterMaterialBase {
    #[uniform(20)]
     pub custom_uniforms: ToonWaterMaterialUniforms,
-    #[texture(21)]
-    #[sampler(22)]
-    pub base_color_texture: Option<Handle<Image>>,
+  //  #[texture(21)]
+  //  #[sampler(22)]
+  //  pub base_color_texture: Option<Handle<Image>>,
     #[texture(23)]
     #[sampler(24)]
     pub surface_noise_texture: Option<Handle<Image>>,
