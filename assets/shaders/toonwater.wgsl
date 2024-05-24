@@ -91,9 +91,9 @@ fn fragment(
     let depth = prepass_utils::prepass_depth(mesh.position,0u);
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
         
-   // let normalized_water_plane_depth = mesh.position.z  ;  //doesnt matter !! 
+  //let normalized_water_plane_depth = mesh.world_position.z  ;  //doesnt matter !! 
  
-    let depth_diff =  saturate(   depth   )  ;
+    let depth_diff =  saturate(    depth   )  ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
  
@@ -105,8 +105,11 @@ fn fragment(
 
 
         
-    let water_depth_diff_foam =   saturate(   depth_diff * 3.0   );
-    let foam_factor = saturate(  mix( water_depth_diff_foam ,    saturate(water_depth_diff_foam / (0.3+normal_dot))   , 0.3  )  );
+    let water_depth_diff_foam =   saturate(   depth_diff    );
+
+    let normal_dot_dampen_factor = 0.1;
+
+    let foam_factor = saturate(  mix( water_depth_diff_foam ,    saturate(water_depth_diff_foam / (normal_dot_dampen_factor+normal_dot))   , 0.5  )  );
 
     let foam_amount = mix(toon_water_uniforms.foam_min_distance, toon_water_uniforms.foam_max_distance,   foam_factor);  
     
@@ -155,7 +158,7 @@ fn fragment(
 
     var color = alpha_blend(surface_noise_color, water_color);
 
-    //color = vec4(  water_depth_diff  ,  water_depth_diff  , water_depth_diff  ,1.0);
+ //   color = vec4(  foam_factor  ,  foam_factor  , foam_factor  ,1.0);
 
   // color = vec4(surface_noise_sample.r  ,surface_noise_sample.g  , surface_noise_sample.b  ,1.0);
   //  color = vec4(surface_noise   ,surface_noise   , surface_noise ,1.0);
