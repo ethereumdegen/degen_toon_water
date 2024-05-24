@@ -10,7 +10,7 @@
       pbr_deferred_functions::deferred_output
 }
  #import bevy_pbr::mesh_functions
- // #import bevy_pbr::prepass_utils
+  #import bevy_pbr::prepass_utils
 
 
 
@@ -58,11 +58,6 @@ var surface_noise_texture: texture_2d<f32>;
 @group(2) @binding(25)
 var surface_distortion_texture: texture_2d<f32>;
 
-@group(2) @binding(27)
-var depth_texture: texture_depth_2d;
-
-@group(2) @binding(29) 
-var normal_texture: texture_2d<f32>;
  
 
  

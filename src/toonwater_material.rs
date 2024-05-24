@@ -9,14 +9,14 @@ use bevy::utils::HashMap;
 
 pub type ToonWaterMaterial = ExtendedMaterial<StandardMaterial, ToonWaterMaterialBase>;
 
-pub fn build_material(
+
+pub fn build_toon_water_material(
    	  base_color: Color,
     emissive: Color,
     texture_handle: Handle<Image>,
-    ) -> Option<ToonWaterMaterial>{
+    ) ->   ToonWaterMaterial {
 
- 
-   Some(
+  
     ExtendedMaterial {
                      base: StandardMaterial {
 			            base_color,
@@ -32,12 +32,12 @@ pub fn build_material(
 			            custom_uniforms: ToonWaterMaterialUniforms::default(),
 			            surface_noise_texture: None,
 			            surface_distortion_texture: None,
-			            depth_texture: None,
-			            normal_texture: None,
+			            //depth_texture: None,
+			            //normal_texture: None,
 			        },
                 }
 
-      )
+      
 }
 
 //pub type AnimatedMaterialExtension = ExtendedMaterial<StandardMaterial, AnimatedMaterial>;
@@ -87,12 +87,12 @@ pub struct ToonWaterMaterialBase {
     #[texture(25)]
     #[sampler(26)]
     pub surface_distortion_texture: Option<Handle<Image>>,
-    #[texture(27)]
-    #[sampler(28)]
-    pub depth_texture: Option<Handle<Image>>,
-    #[texture(29)]
-    #[sampler(30)]
-    pub normal_texture: Option<Handle<Image>>,
+    //#[texture(27)]
+    //#[sampler(28)]
+   // pub depth_texture: Option<Handle<Image>>,
+    //#[texture(29)]
+   // #[sampler(30)]
+   // pub normal_texture: Option<Handle<Image>>,
 }
 
 impl MaterialExtension for ToonWaterMaterialBase {
