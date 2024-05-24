@@ -13,11 +13,9 @@
 }
  #import bevy_pbr::mesh_functions
   #import bevy_pbr::prepass_utils
-
+#import bevy_pbr::lighting
 
 // #import bevy_pbr::mesh_view_bindings view
-
-
 
 
 struct StandardMaterial {
@@ -92,8 +90,11 @@ fn fragment(
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
         
   //let normalized_water_plane_depth = mesh.world_position.z  ;  //doesnt matter !! 
- 
-    let depth_diff =  saturate(    depth   )  ;
+    
+  // let fresnel = fresnel(view.world_position.xyz, world_position.xyz, world_normal,2.0,1.0 );
+
+    let depth_offset = 0.82; 
+    let depth_diff =   1.0 - ( (   mesh.position.z -  depth ) *100.0   ) - depth_offset ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
  
@@ -158,7 +159,7 @@ fn fragment(
 
     var color = alpha_blend(surface_noise_color, water_color);
 
- //   color = vec4(  foam_factor  ,  foam_factor  , foam_factor  ,1.0);
+   // color = vec4(  fresnel  ,  fresnel  , fresnel  ,1.0);
 
   // color = vec4(surface_noise_sample.r  ,surface_noise_sample.g  , surface_noise_sample.b  ,1.0);
   //  color = vec4(surface_noise   ,surface_noise   , surface_noise ,1.0);
