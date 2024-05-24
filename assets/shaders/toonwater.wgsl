@@ -1,6 +1,8 @@
  
- 
-  
+ #import bevy_pbr::mesh_functions  mesh_position_local_to_clip
+  #import bevy_pbr::mesh_functions  mesh_position_local_to_world
+  #import bevy_pbr::mesh_bindings   mesh
+
  #import bevy_pbr::{
     mesh_view_bindings::globals, 
     forward_io::{VertexOutput, FragmentOutput}, 
@@ -77,7 +79,7 @@ fn fragment(
    // @builtin(position) frag_coord: vec4<f32>,
      mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
-    let uv = mesh.position.xy / vec2<f32>(textureDimensions(surface_noise_texture));
+    let uv = mesh.uv  ;
     
  
 
@@ -92,7 +94,7 @@ fn fragment(
     let water_color = mix(toon_water_uniforms.depth_gradient_shallow, toon_water_uniforms.depth_gradient_deep, water_depth_diff);
 
     let normal = prepass_normal ; //textureLoad(normal_texture, vec2<i32>(frag_coord.xy), 0).xyz;
-    let normal_dot = saturate(dot(normal,  mesh.world_normal ));
+    let normal_dot = saturate(dot(normal,  normalize(mesh.world_normal) ));
     let foam_distance = mix(toon_water_uniforms.foam_max_distance, toon_water_uniforms.foam_min_distance, normal_dot);  
     let foam_depth_diff = saturate(depth_diff / foam_distance);
 
@@ -103,7 +105,7 @@ fn fragment(
 
 
     let time_base = globals.time % 1.0;
-    
+
     let noise_uv = vec2<f32>(
         (uv.x + time_base * toon_water_uniforms.surface_noise_scroll.x) + distort_sample.x, 
         (uv.y + time_base * toon_water_uniforms.surface_noise_scroll.y) + distort_sample.y
@@ -126,4 +128,21 @@ fn alpha_blend(top: vec4<f32>, bottom: vec4<f32>) -> vec4<f32> {
     let color = top.rgb * top.a + bottom.rgb * (1.0 - top.a);
     let alpha = top.a + bottom.a * (1.0 - top.a);
     return vec4<f32>(color, alpha);  
+}
+
+
+ 
+
+@vertex
+fn vertex(
+    @location(0) position: vec3<f32>,
+    @location(1) normal: vec3<f32>,
+    // other attributes...
+) -> VertexOutput {
+    var out: VertexOutput;
+   // out.clip_position = uniforms.view_proj * vec4<f32>(position, 1.0);
+  //  out.world_position = uniforms.model * vec4<f32>(position, 1.0);
+  //  out.uv = uv;
+  //  out.view_normal = normalize(uniforms.view * uniforms.model * vec4<f32>(normal, 0.0)).xyz;
+    return out;
 }

@@ -182,6 +182,17 @@ fn setup(
     });
 
 
+     commands.spawn(PbrBundle {
+        mesh: meshes.add(Torus::new(5.0, 4.0 )),
+        material: materials.add(StandardMaterial {
+            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            ..Default::default()
+        }),
+        transform: Transform::from_xyz(0.0, -4.2, 0.0),
+        ..default()
+    });
+
+
     commands.spawn((
         Camera3dBundle {
             camera: Camera {
