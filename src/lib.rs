@@ -1,6 +1,7 @@
 
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::texture::{CompressedImageFormats, ImageFormat, ImageSampler, ImageType};
+use toonwater_material::ToonWaterMaterial;
 use std::io::{Cursor, Read};
 use bevy::asset::load_internal_asset;
 use bevy::prelude::*;
@@ -67,6 +68,8 @@ impl Plugin for DegenToonWaterPlugin {
                  prepass_enabled: false,
                 ..default() 
             })
+
+            .add_systems(Update, update_material_coord_scale)
              
             ;
 
@@ -87,3 +90,40 @@ pub const DEFAULT_DISTORTION_MAP_HANDLE: Handle<Image> =
     Handle::weak_from_u128(6_441_765_653_326_404_902);
 
  
+
+ fn update_material_coord_scale (
+
+
+    material_query: Query < ( &Handle<ToonWaterMaterial>, &GlobalTransform)  >,
+    mut materials: ResMut<Assets<ToonWaterMaterial>>
+){
+
+    for (mat_handle, global_xform) in material_query.iter(){
+
+
+
+        if let Some(  material) = materials.get_mut( mat_handle ){
+        
+            let translation = global_xform.translation();
+            let scale = global_xform.to_scale_rotation_translation().0;
+
+
+            let x = translation.x;
+            let y = translation.z;
+
+
+
+            let coord_offset = Vec2::new(x,y);
+            let coord_scale = Vec2::new(scale.x as f32, scale.z as f32);
+
+            info!("new scale {:?}",coord_scale);
+ 
+            material.extension.custom_uniforms.coord_offset = coord_offset;
+            material.extension.custom_uniforms.coord_scale = coord_scale;
+
+
+        }
+
+    }
+
+ }

@@ -15,7 +15,7 @@
   #import bevy_pbr::prepass_utils
 
 
-// #import bevy_pbr::mesh_view_bindings view
+ #import bevy_pbr::mesh_view_bindings view
 
 
 
@@ -42,6 +42,9 @@ struct StandardMaterial {
     surface_distortion_amount: f32,
     foam_max_distance: f32,
     foam_min_distance: f32,
+
+     coord_offset: vec2<f32>,
+      coord_scale: vec2<f32>,
 };
  
 
@@ -80,11 +83,15 @@ var surface_distortion_sampler: sampler;
 
 @fragment
 fn fragment(
-     //@builtin(position) frag_coord: vec4<f32>,
-      //@builtin(position) frag_coord: vec4<f32>,
+     
      mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
     let uv = mesh.uv  ;
+
+     //let screen_uv = mesh.position.xy / vec2<f32>( view.viewport.z,  view.viewport.w);
+    
+    var world_position: vec4<f32> = mesh.world_position;
+   let scaled_uv =  uv_to_coord(mesh.uv);
     
     //saturate clamps between 0 and 1 
  
@@ -92,7 +99,9 @@ fn fragment(
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
         
   //let normalized_water_plane_depth = mesh.world_position.z  ;  //doesnt matter !! 
- 
+    
+    // frag_coord.z -
+
     let depth_diff =  saturate(    depth   )  ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
@@ -131,14 +140,15 @@ fn fragment(
       //    let distort_uv_scale = 1.0;
 
  
-   let distort_sample = textureSample(surface_distortion_texture, surface_distortion_sampler, uv   )   ;
+   let distort_sample = textureSample(surface_distortion_texture, surface_distortion_sampler, scaled_uv   )   ;
 
 
     //distort sample is messing me up ! 
 
     let time_base =  ( globals.time  ) * 1.0  ;
 
-    let distorted_plane_uv = uv + (distort_sample.rg * toon_water_uniforms. surface_distortion_amount);
+    let distorted_plane_uv = scaled_uv + (distort_sample.rg * toon_water_uniforms. surface_distortion_amount);
+
     var noise_uv = vec2<f32>(
         (distorted_plane_uv.x + (time_base * toon_water_uniforms.surface_noise_scroll.x)) %1.0 ,
         (distorted_plane_uv.y + (time_base * toon_water_uniforms.surface_noise_scroll.y))  %1.0 
@@ -158,7 +168,7 @@ fn fragment(
 
     var color = alpha_blend(surface_noise_color, water_color);
 
- //   color = vec4(  foam_factor  ,  foam_factor  , foam_factor  ,1.0);
+   //color = vec4(  screen_uv.x  ,  screen_uv.y  , 1.0  ,1.0);
 
   // color = vec4(surface_noise_sample.r  ,surface_noise_sample.g  , surface_noise_sample.b  ,1.0);
   //  color = vec4(surface_noise   ,surface_noise   , surface_noise ,1.0);
@@ -171,5 +181,8 @@ fn alpha_blend(top: vec4<f32>, bottom: vec4<f32>) -> vec4<f32> {
     return vec4<f32>(color, alpha);  
 }
 
+fn uv_to_coord(uv: vec2<f32>) -> vec2<f32> {
+  return toon_water_uniforms.coord_offset + (uv * toon_water_uniforms.coord_scale);
+}
 
   

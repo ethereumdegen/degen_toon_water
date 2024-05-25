@@ -60,6 +60,9 @@ pub struct ToonWaterMaterialUniforms {
     pub foam_max_distance: f32,
     pub foam_min_distance: f32,
 
+    pub coord_offset: Vec2,
+    pub coord_scale: Vec2,
+
  
 }
 impl Default for ToonWaterMaterialUniforms {
@@ -74,6 +77,8 @@ impl Default for ToonWaterMaterialUniforms {
             surface_distortion_amount:  0.14,
             foam_max_distance: 19.0,  //foam for an obstruction in the water (from normal dot product)
             foam_min_distance: 0.014, //foam at shore
+            coord_offset: Vec2::new(0.0,0.0),
+            coord_scale: Vec2::new(1.0,1.0)
         }
     }
 }
