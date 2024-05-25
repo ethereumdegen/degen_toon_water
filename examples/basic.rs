@@ -112,10 +112,7 @@ fn setup(
   
     let toon_water_material_handle = toon_water_materials.add( 
          build_toon_water_material (
-            base_color,
-            emissive,
-             None,  
-             None,  
+          
         ) );
 
 

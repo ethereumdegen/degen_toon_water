@@ -12,12 +12,17 @@ pub type ToonWaterMaterial = ExtendedMaterial<StandardMaterial, ToonWaterMateria
 
 
 pub fn build_toon_water_material(
-   	base_color: Color,
-    emissive: Color,
-    surface_noise_texture_handle: Option< Handle<Image> > ,
-    surface_distortion_texture_handle: Option<  Handle<Image> > ,
+   	//base_color: Color,
+    //emissive: Color,
+    //surface_noise_texture_handle: Option< Handle<Image> > ,
+    //surface_distortion_texture_handle: Option<  Handle<Image> > ,
     ) ->   ToonWaterMaterial {
 
+
+        //do these do anything ?
+        let base_color = Color::rgba(1.0,1.0,1.0,1.0);
+        let emissive = Color::rgba(1.0,1.0,1.0,1.0);
+ 
   
             ExtendedMaterial {
                      base: StandardMaterial {
@@ -26,16 +31,15 @@ pub fn build_toon_water_material(
 			            opaque_render_method: OpaqueRendererMethod::Auto,
 			            alpha_mode: AlphaMode::Blend,
 			            double_sided: true,
-			            cull_mode: None,
-
+			            cull_mode: None, 
 
 			            ..Default::default()
 			        },
 			        extension: ToonWaterMaterialBase {
 			          //  base_color_texture: Some(texture_handle),
 			            custom_uniforms: ToonWaterMaterialUniforms::default(),
-			            surface_noise_texture: Some(surface_noise_texture_handle.unwrap_or( DEFAULT_NOISE_MAP_HANDLE )),
-			            surface_distortion_texture: Some(surface_distortion_texture_handle .unwrap_or( DEFAULT_DISTORTION_MAP_HANDLE )),
+			            surface_noise_texture: Some( DEFAULT_NOISE_MAP_HANDLE ),
+			            surface_distortion_texture: Some( DEFAULT_DISTORTION_MAP_HANDLE ),
 			            //depth_texture: None,
 			            //normal_texture: None,
 			        },
@@ -60,6 +64,8 @@ pub struct ToonWaterMaterialUniforms {
     pub foam_max_distance: f32,
     pub foam_min_distance: f32,
 
+    pub noise_map_scale: f32,
+
     pub coord_offset: Vec2,
     pub coord_scale: Vec2,
 
@@ -73,10 +79,13 @@ impl Default for ToonWaterMaterialUniforms {
             depth_max_distance: 1.0,
             foam_color: Color::rgba(0.9,0.9,0.9,1.0),
             surface_noise_scroll: Vec2::new(0.1,0.1),
-            surface_noise_cutoff:  0.8,
+            surface_noise_cutoff:  0.9,
             surface_distortion_amount:  0.14,
             foam_max_distance: 19.0,  //foam for an obstruction in the water (from normal dot product)
             foam_min_distance: 0.014, //foam at shore
+            noise_map_scale: 2.0,
+
+            //these are controlled by an update system 
             coord_offset: Vec2::new(0.0,0.0),
             coord_scale: Vec2::new(1.0,1.0)
         }

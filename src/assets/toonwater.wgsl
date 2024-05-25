@@ -42,9 +42,10 @@ struct StandardMaterial {
     surface_distortion_amount: f32,
     foam_max_distance: f32,
     foam_min_distance: f32,
+    noise_map_scale: f32, 
 
-     coord_offset: vec2<f32>,
-      coord_scale: vec2<f32>,
+    coord_offset: vec2<f32>,
+    coord_scale: vec2<f32>,
 };
  
 
@@ -91,7 +92,7 @@ fn fragment(
      //let screen_uv = mesh.position.xy / vec2<f32>( view.viewport.z,  view.viewport.w);
     
     var world_position: vec4<f32> = mesh.world_position;
-   let scaled_uv =  uv_to_coord(mesh.uv);
+    let scaled_uv =  uv_to_coord(mesh.uv) * toon_water_uniforms.noise_map_scale;
     
     //saturate clamps between 0 and 1 
  
@@ -129,12 +130,7 @@ fn fragment(
 
 
     //if foam depth diff is very white (an obstruction under surface) then we should use a SMALLER cutoff to show more foam there 
-    /*let surface_noise_cutoff = mix( 
-     toon_water_uniforms.surface_noise_cutoff ,  
-     toon_water_uniforms.surface_noise_cutoff * 0.1,   
-      foam_amount
-
-        ); */ //make foam depth diff addd to this 
+     
     let surface_noise_cutoff = toon_water_uniforms.surface_noise_cutoff - (  toon_water_uniforms.surface_noise_cutoff*    foam_amount  );
 
       //    let distort_uv_scale = 1.0;
