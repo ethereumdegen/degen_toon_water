@@ -106,16 +106,16 @@ fn setup(
              Simulate our bevy asset loader with 'asset_loading_resource'
     */
 
-    let base_color = Color::rgba(0.2,0.2,0.6,1.0);
-    let emissive = Color::rgba(0.2,0.2,0.6,1.0);
+    
+
+    let mut water_material = build_toon_water_material (  );
+
+    //you can configure the water easily like this 
+    water_material.extension.custom_uniforms.noise_map_scale = 2.0;
 
   
-    let toon_water_material_handle = toon_water_materials.add( 
-         build_toon_water_material (
-          
-        ) );
-
-
+    let toon_water_material_handle = toon_water_materials.add( water_material );
+ 
  
     commands.spawn(PointLightBundle {
         point_light: PointLight {
