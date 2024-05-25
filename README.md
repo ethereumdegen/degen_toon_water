@@ -7,4 +7,5 @@
 
 ### Ref material 
 
-// example shaders https://github.com/rust-adventure/bevy-examples/blob/7f6a4975e42fc7c62c13a0ac8be2998d1a7d159f/examples/dissolve-sphere/assets/shaders/custom_material.wgsl
+// example shaders https://github.com/rust-adventure/bevy-examples/tree/main
+ 

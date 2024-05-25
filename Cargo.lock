@@ -866,6 +866,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_shader_utils"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2ac2f8adeb27b4e114fcb451fd1a72615cdd760303137c20701b7362ef79474"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_sprite"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1528,6 +1537,7 @@ version = "0.1.4"
 dependencies = [
  "bevy",
  "bevy_common_assets",
+ "bevy_shader_utils",
  "ron",
  "serde",
  "serde_json",
