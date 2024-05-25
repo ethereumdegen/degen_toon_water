@@ -168,7 +168,7 @@ fn fragment(
 
     var color = alpha_blend(surface_noise_color, water_color);
 
-   //color = vec4(  screen_uv.x  ,  screen_uv.y  , 1.0  ,1.0);
+   // color = vec4(  depth_diff  ,  depth_diff  ,depth_diff  ,1.0);
 
   // color = vec4(surface_noise_sample.r  ,surface_noise_sample.g  , surface_noise_sample.b  ,1.0);
   //  color = vec4(surface_noise   ,surface_noise   , surface_noise ,1.0);

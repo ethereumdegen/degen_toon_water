@@ -116,8 +116,7 @@ pub const DEFAULT_DISTORTION_MAP_HANDLE: Handle<Image> =
             let coord_offset = Vec2::new(x,y);
             let coord_scale = Vec2::new(scale.x as f32, scale.z as f32);
 
-            info!("new scale {:?}",coord_scale);
- 
+         
             material.extension.custom_uniforms.coord_offset = coord_offset;
             material.extension.custom_uniforms.coord_scale = coord_scale;
 
