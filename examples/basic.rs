@@ -35,7 +35,7 @@ fn main() {
        // .insert_resource(BuiltVfxResource::default())
         .insert_resource(AssetLoadingResource::default())
         .insert_resource(FolderLoadingResource::default())
-         .init_state::<LoadingState>()
+       //  .init_state::<LoadingState>()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         //.add_plugins(bevy_obj::ObjPlugin)
 
@@ -44,12 +44,7 @@ fn main() {
 
 
        //  .add_systems(Update, update_load_folders)
- 
-
-        //.add_systems(OnEnter(LoadingState::FundamentalAssetsLoad), update_loading_shader_variant_manifest)
-        //.add_systems(OnEnter(LoadingState::ShadersLoad), update_loading_magic_fx_variant_manifest)
-        // .add_systems(OnEnter(LoadingState::Complete) , spawn_magic_fx) 
-
+  
         
         .add_systems(Startup, setup)
         .add_systems(Update, camera::update_camera_look)
@@ -66,13 +61,7 @@ fn main() {
 #[derive(Resource, Default)]
   struct AssetLoadingResource {
     texture_handles_map: HashMap<String, Handle<Image>>,
-    //mesh_handles_map: HashMap<String, Handle<Mesh>>,
-   // shader_variants_map: HashMap<String, Handle<ShaderVariantManifest>>,
-
-   // magic_fx_variants_map: HashMap<String, Handle<MagicFxVariantManifest>>,
-
     
-   //  animated_material_map: HashMap<String, Handle<AnimatedMaterial>>,
  
 }
 
@@ -82,10 +71,7 @@ fn main() {
    
 
     textures_folder_handle: Handle<LoadedFolder>,
-   // shadvars_folder_handle: Handle<LoadedFolder>,
-  //  meshes_folder_handle: Handle<LoadedFolder>,
-
-   //   magicfx_folder_handle: Handle<LoadedFolder>,
+   
 
 }
 
@@ -98,17 +84,7 @@ pub enum LoadStateEvent {
 }
 
 */
-
-#[derive(States,Hash,Eq,PartialEq,Debug,Clone,Default)]
-pub enum LoadingState {
-    #[default]
-    Init,
-    FundamentalAssetsLoad,
-    ShadersLoad,
-    Complete
-
-}
-
+ 
 
 
 fn setup(
@@ -133,15 +109,13 @@ fn setup(
     let base_color = Color::rgba(0.2,0.2,0.6,1.0);
     let emissive = Color::rgba(0.2,0.2,0.6,1.0);
 
-    let surface_noise_texture_handle =  asset_server.load("textures/PerlinNoise.png");
-    let surface_distortion_texture_handle =  asset_server.load("textures/WaterDistortion.png");
- 
+  
     let toon_water_material_handle = toon_water_materials.add( 
          build_toon_water_material (
             base_color,
             emissive,
-            surface_noise_texture_handle,  
-             surface_distortion_texture_handle,  
+             None,  
+             None,  
         ) );
 
 

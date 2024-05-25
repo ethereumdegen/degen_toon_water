@@ -1,3 +1,4 @@
+use crate::{DEFAULT_DISTORTION_MAP_HANDLE, DEFAULT_NOISE_MAP_HANDLE, TOON_WATER_SHADER_HANDLE};
 use bevy::prelude::*;
 use bevy::reflect::TypePath;
 use bevy::render::render_resource::*;
@@ -13,12 +14,12 @@ pub type ToonWaterMaterial = ExtendedMaterial<StandardMaterial, ToonWaterMateria
 pub fn build_toon_water_material(
    	base_color: Color,
     emissive: Color,
-    surface_noise_texture_handle: Handle<Image>,
-    surface_distortion_texture_handle: Handle<Image>,
+    surface_noise_texture_handle: Option< Handle<Image> > ,
+    surface_distortion_texture_handle: Option<  Handle<Image> > ,
     ) ->   ToonWaterMaterial {
 
   
-    ExtendedMaterial {
+            ExtendedMaterial {
                      base: StandardMaterial {
 			            base_color,
 			            emissive,
@@ -33,8 +34,8 @@ pub fn build_toon_water_material(
 			        extension: ToonWaterMaterialBase {
 			          //  base_color_texture: Some(texture_handle),
 			            custom_uniforms: ToonWaterMaterialUniforms::default(),
-			            surface_noise_texture: Some(surface_noise_texture_handle),
-			            surface_distortion_texture: Some(surface_distortion_texture_handle),
+			            surface_noise_texture: Some(surface_noise_texture_handle.unwrap_or( DEFAULT_NOISE_MAP_HANDLE )),
+			            surface_distortion_texture: Some(surface_distortion_texture_handle .unwrap_or( DEFAULT_DISTORTION_MAP_HANDLE )),
 			            //depth_texture: None,
 			            //normal_texture: None,
 			        },
@@ -100,10 +101,12 @@ pub struct ToonWaterMaterialBase {
 
 impl MaterialExtension for ToonWaterMaterialBase {
     fn fragment_shader() -> ShaderRef {
-        "shaders/toonwater.wgsl".into()
+       
+         ShaderRef::Handle(TOON_WATER_SHADER_HANDLE)
     }
 
     fn deferred_fragment_shader() -> ShaderRef {
-        "shaders/toonwater.wgsl".into()
+         
+         ShaderRef::Handle(TOON_WATER_SHADER_HANDLE)
     }
 }
