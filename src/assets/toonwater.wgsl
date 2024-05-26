@@ -81,6 +81,8 @@ var surface_distortion_sampler: sampler;
   
  
 
+ // i want to make the foam smaller overall and also more concentrated where there is depth 
+
 
 @fragment
 fn fragment(
@@ -99,11 +101,10 @@ fn fragment(
     let depth = prepass_utils::prepass_depth(mesh.position,0u);
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
         
-  //let normalized_water_plane_depth = mesh.world_position.z  ;  //doesnt matter !! 
-    
-    // frag_coord.z -
+    // let  water_surface_depth = mesh.position.z  ;   
+     
 
-    let depth_diff =  saturate(    depth   )  ;
+    let depth_diff =     depth   * 100.0  ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
  
