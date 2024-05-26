@@ -101,10 +101,10 @@ fn fragment(
     let depth = prepass_utils::prepass_depth(mesh.position,0u);
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
         
-    // let  water_surface_depth = mesh.position.z  ;   
+   let  water_surface_depth = mesh.position.z  ;   
      
 
-    let depth_diff =     depth   * 100.0  ;
+    let depth_diff =      depth   * 100.0 - water_surface_depth ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
  
