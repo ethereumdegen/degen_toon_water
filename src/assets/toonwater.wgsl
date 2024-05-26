@@ -17,6 +17,7 @@
 
  #import bevy_pbr::mesh_view_bindings view
 
+#import bevy_pbr::view_transformations::{position_clip_to_world,position_view_to_clip, depth_ndc_to_view_z} 
 
 
 
@@ -82,7 +83,7 @@ var surface_distortion_sampler: sampler;
  
 
  // i want to make the foam smaller overall and also more concentrated where there is depth 
-
+//https://github.com/bevyengine/bevy/blob/7d843e0c0891545ec6cc0131398b0db6364a7a88/crates/bevy_pbr/src/prepass/prepass.wgsl#L4
 
 @fragment
 fn fragment(
@@ -93,18 +94,36 @@ fn fragment(
 
      //let screen_uv = mesh.position.xy / vec2<f32>( view.viewport.z,  view.viewport.w);
     
-    var world_position: vec4<f32> = mesh.world_position;
+  //  var world_position: vec4<f32> = mesh.world_position;
     let scaled_uv =  uv_to_coord(mesh.uv) * toon_water_uniforms.noise_map_scale;
     
     //saturate clamps between 0 and 1 
  
     let depth = prepass_utils::prepass_depth(mesh.position,0u);
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
-        
-   let  water_surface_depth = mesh.position.z  ;   
+
+
+//https://github.com/bevyengine/bevy/blob/7d843e0c0891545ec6cc0131398b0db6364a7a88/crates/bevy_pbr/src/render/view_transformations.wgsl#L101
+    // i really need world position z !
+
+            
+     //this is how the frag_depth (buffer) is written to by other things 
+   let  water_surface_world_pos =      mesh.world_position   ;  
+ 
+ 
+    let screen_position = mesh.position.xy;
+    let ndc_screen_coord = screen_position.xy  ;
+    let depth_clip_pos = position_view_to_clip( vec3<f32>(ndc_screen_coord.xy,  depth ));
+
+
+    let depth_buffer_world =  position_clip_to_world( (depth_clip_pos) );
+
+
+
      
 
-    let depth_diff =      depth   * 100.0 - water_surface_depth ;
+   //this should show the distance of any given obstruction to the surface of the water 
+    let depth_diff =  (    depth_buffer_world.z- water_surface_world_pos.z ) ;
 
     let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
  
@@ -114,13 +133,17 @@ fn fragment(
     let normal_dot = saturate(dot(prepass_normal,  normalize(mesh.world_normal) ))  ;
 
 
-
         
     let water_depth_diff_foam =   saturate(   depth_diff    );
 
-    let normal_dot_dampen_factor = 0.1;
+    let normal_dot_dampen_factor = 0.0;
 
-    let foam_factor = saturate(  mix( water_depth_diff_foam ,    saturate(water_depth_diff_foam / (normal_dot_dampen_factor+normal_dot))   , 0.5  )  );
+    //let normal_dot_contribution_factor = 1.0;
+
+    let foam_factor_from_normal =   saturate( 1.0  - normal_dot) ;
+
+    //foam is reduced the deeper the underwater obstruction is 
+    let foam_factor = saturate(  mix( 0.0 ,  foam_factor_from_normal  ,  water_depth_diff_foam  ) );
 
     let foam_amount = mix(toon_water_uniforms.foam_min_distance, toon_water_uniforms.foam_max_distance,   foam_factor);  
     
@@ -165,7 +188,7 @@ fn fragment(
 
     var color = alpha_blend(surface_noise_color, water_color);
 
-   // color = vec4(  depth_diff  ,  depth_diff  ,depth_diff  ,1.0);
+     color = vec4(   depth_diff   ,  depth_diff   , depth_diff ,1.0);
 
   // color = vec4(surface_noise_sample.r  ,surface_noise_sample.g  , surface_noise_sample.b  ,1.0);
   //  color = vec4(surface_noise   ,surface_noise   , surface_noise ,1.0);

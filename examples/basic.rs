@@ -170,6 +170,19 @@ fn setup(
     });
 
 
+    //cube just under water surface but parallel
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+        material: materials.add(StandardMaterial {
+            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            ..Default::default()
+        }),
+        transform: Transform::from_xyz(-4.0, -1.0, -8.0),
+        ..default()
+    });
+
+
+
      commands.spawn(PbrBundle {
         mesh: meshes.add(Torus::new(5.0, 4.0 )),
         material: materials.add(StandardMaterial {
