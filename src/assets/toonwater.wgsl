@@ -17,7 +17,13 @@
 
  #import bevy_pbr::mesh_view_bindings view
 
-#import bevy_pbr::view_transformations::{position_clip_to_world,position_view_to_clip, depth_ndc_to_view_z} 
+#import bevy_pbr::view_transformations::{
+position_clip_to_world,
+sition_view_to_clip, 
+position_clip_to_view,
+position_view_to_world,
+depth_ndc_to_view_z
+} 
 
 
 
@@ -85,6 +91,11 @@ var surface_distortion_sampler: sampler;
  // i want to make the foam smaller overall and also more concentrated where there is depth 
 //https://github.com/bevyengine/bevy/blob/7d843e0c0891545ec6cc0131398b0db6364a7a88/crates/bevy_pbr/src/prepass/prepass.wgsl#L4
 
+
+//https://github.com/bevyengine/bevy/blob/7d843e0c0891545ec6cc0131398b0db6364a7a88/crates/bevy_pbr/src/render/view_transformations.wgsl#L101
+    // i really need world position z !
+
+
 @fragment
 fn fragment(
      
@@ -92,7 +103,6 @@ fn fragment(
 ) -> @location(0) vec4<f32> {
     let uv = mesh.uv  ;
 
-     //let screen_uv = mesh.position.xy / vec2<f32>( view.viewport.z,  view.viewport.w);
     
   //  var world_position: vec4<f32> = mesh.world_position;
     let scaled_uv =  uv_to_coord(mesh.uv) * toon_water_uniforms.noise_map_scale;
@@ -103,29 +113,39 @@ fn fragment(
     let prepass_normal = prepass_utils::prepass_normal(mesh.position,0u);
 
 
-//https://github.com/bevyengine/bevy/blob/7d843e0c0891545ec6cc0131398b0db6364a7a88/crates/bevy_pbr/src/render/view_transformations.wgsl#L101
-    // i really need world position z !
 
             
      //this is how the frag_depth (buffer) is written to by other things 
-   let  water_surface_world_pos =      mesh.world_position   ;  
+     //this seems to be correct 
+   let water_surface_world_pos =      mesh.world_position   ;  
  
+    
+    //this is correct 
+   let screen_position_uv = mesh.position.xy /   view.viewport.zw ;
+     
+
  
-    let screen_position = mesh.position.xy;
-    let ndc_screen_coord = screen_position.xy  ;
-    let depth_clip_pos = position_view_to_clip( vec3<f32>(ndc_screen_coord.xy,  depth ));
+
+   //  view.viewport.zw is width and height of viewport 
 
 
-    let depth_buffer_world =  position_clip_to_world( (depth_clip_pos) );
+     let depth_buffer_view = reconstruct_view_space_position ( screen_position_uv, depth );
 
+     //this works !! 
+     let depth_buffer_world = position_view_to_world( depth_buffer_view );
 
-
+    
      
 
    //this should show the distance of any given obstruction to the surface of the water 
-    let depth_diff =  (    depth_buffer_world.z- water_surface_world_pos.z ) ;
+   //it is good enough 
+  let depth_diff =  1.0 -  saturate ( -1.0 *  (depth_buffer_world. y - water_surface_world_pos.y) / toon_water_uniforms.depth_max_distance   ) ;
 
-    let water_depth_diff = saturate(depth_diff / toon_water_uniforms.depth_max_distance);
+    // let depth_diff =  ( -1.0 *  water_surface_world_pos.y  - depth_buffer_world. y  ) ;
+
+
+
+    let water_depth_diff = saturate( depth_diff );
  
     let water_color = mix(toon_water_uniforms.depth_gradient_shallow, toon_water_uniforms.depth_gradient_deep, water_depth_diff);
 
@@ -188,9 +208,12 @@ fn fragment(
 
     var color = alpha_blend(surface_noise_color, water_color);
 
-     color = vec4(   depth_diff   ,  depth_diff   , depth_diff ,1.0);
 
-  // color = vec4(surface_noise_sample.r  ,surface_noise_sample.g  , surface_noise_sample.b  ,1.0);
+   // color = vec4(depth_diff,depth_diff,depth_diff ,1.0);
+
+ // color = vec4<f32>(depth_buffer_world.x, depth_buffer_world.y, depth_buffer_world.z, 1.0);
+
+
   //  color = vec4(surface_noise   ,surface_noise   , surface_noise ,1.0);
     return color;
 }
@@ -206,3 +229,31 @@ fn uv_to_coord(uv: vec2<f32>) -> vec2<f32> {
 }
 
   
+
+fn screen_to_clip(screen_coord: vec2<f32>, depth: f32) -> vec4<f32> {
+    let ndc_x = screen_coord.x * 2.0 - 1.0;
+    let ndc_y = screen_coord.y * 2.0 - 1.0;
+    let ndc_z = depth * 2.0 - 1.0;
+    return vec4<f32>(ndc_x, ndc_y, ndc_z, 1.0);
+}
+
+
+  fn reconstruct_view_space_position( uv: vec2<f32>, depth: f32) -> vec3<f32> {
+    let clip_xy = vec2<f32>(uv.x * 2.0 - 1.0, 1.0 - 2.0 * uv.y);
+    let t = view.inverse_projection * vec4<f32>(clip_xy, depth, 1.0);
+    let view_xyz = t.xyz / t.w;
+    return view_xyz;
+}
+
+
+
+fn clip_to_view(clip_pos: vec4<f32>) -> vec3<f32> {
+    // Transform from clip space to view space using the inverse projection matrix
+    let view_space = view.inverse_projection * clip_pos;
+    let view_space_pos = view_space.xyz / view_space.w;
+
+    // Transform from view space to world space using the inverse view matrix
+  //  let world_space = view.inverse_view * vec4<f32>(view_space_pos, 1.0);
+    return view_space_pos.xyz;
+}
+

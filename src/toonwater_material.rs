@@ -76,7 +76,7 @@ impl Default for ToonWaterMaterialUniforms {
         Self {
 		    depth_gradient_shallow: Color::rgba(0.325, 0.807, 0.971, 0.725),
             depth_gradient_deep: Color::rgba(0.086, 0.307, 0.7, 0.949),
-            depth_max_distance: 1.0,
+            depth_max_distance: 2.0,
             foam_color: Color::rgba(0.9,0.9,0.9,1.0),
             surface_noise_scroll: Vec2::new(0.1,0.1),
             surface_noise_cutoff:  0.9,
