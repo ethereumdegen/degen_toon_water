@@ -105,7 +105,7 @@ fn fragment(
 
     
   //  var world_position: vec4<f32> = mesh.world_position;
-    let scaled_uv =  uv_to_coord(mesh.uv) * toon_water_uniforms.noise_map_scale;
+    let scaled_uv =  uv_to_coord(mesh.uv) * toon_water_uniforms.noise_map_scale * 0.02 ;
     
     //saturate clamps between 0 and 1 
  
@@ -121,7 +121,7 @@ fn fragment(
  
     
     //this is correct 
-   let screen_position_uv = mesh.position.xy /   view.viewport.zw ;
+   let screen_position_uv = (mesh.position.xy + vec2<f32>(0.5,0.5) ) /   view.viewport.zw ;
      
 
  
@@ -139,13 +139,13 @@ fn fragment(
 
    //this should show the distance of any given obstruction to the surface of the water 
    //it is good enough 
-  let depth_diff =  1.0 -  saturate ( -1.0 *  (depth_buffer_world. y - water_surface_world_pos.y) / toon_water_uniforms.depth_max_distance   ) ;
+  let depth_diff =  1.0 -    ( -1.0 *  (depth_buffer_world. y - water_surface_world_pos.y) / toon_water_uniforms.depth_max_distance   ) ;
 
     // let depth_diff =  ( -1.0 *  water_surface_world_pos.y  - depth_buffer_world. y  ) ;
 
 
 
-    let water_depth_diff = saturate( depth_diff );
+    let water_depth_diff = 1.0 - saturate( depth_diff );
  
     let water_color = mix(toon_water_uniforms.depth_gradient_shallow, toon_water_uniforms.depth_gradient_deep, water_depth_diff);
 
@@ -156,7 +156,7 @@ fn fragment(
         
     let water_depth_diff_foam =   saturate(   depth_diff    );
 
-    let normal_dot_dampen_factor = 0.0;
+   // let normal_dot_dampen_factor = 0.0;
 
     //let normal_dot_contribution_factor = 1.0;
 
@@ -209,7 +209,7 @@ fn fragment(
     var color = alpha_blend(surface_noise_color, water_color);
 
 
-   // color = vec4(depth_diff,depth_diff,depth_diff ,1.0);
+ //  color = vec4( depth_diff,depth_diff,depth_diff ,1.0);
 
  // color = vec4<f32>(depth_buffer_world.x, depth_buffer_world.y, depth_buffer_world.z, 1.0);
 

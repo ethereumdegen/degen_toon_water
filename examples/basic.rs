@@ -136,10 +136,10 @@ fn setup(
     // Water Plane
     // To scale the water plane, be sure to only adjust the scale. If you adjust the mesh vertex size, the shader may not scale properly.
     commands.spawn((MaterialMeshBundle {
-            mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
+            mesh: meshes.add(Plane3d::default().mesh().size(1.0, 1.0)),
             material:  toon_water_material_handle,
 
-            transform: Transform::from_scale( (2.0,2.0,2.0).into()  ),
+            transform: Transform::from_scale( (5000.0,2.0,5000.0).into()  ),
             ..default()
         } ));
 
