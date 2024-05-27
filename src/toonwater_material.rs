@@ -82,7 +82,7 @@ impl Default for ToonWaterMaterialUniforms {
             surface_noise_cutoff:  0.9,
             surface_distortion_amount:  0.14,
             foam_max_distance: 0.6,  //foam for an obstruction in the water (from normal dot product)
-            foam_min_distance: 0.014, //foam at shore
+            foam_min_distance: 0.14, //foam at shore
             noise_map_scale: 2.0,
 
             //these are controlled by an update system 
