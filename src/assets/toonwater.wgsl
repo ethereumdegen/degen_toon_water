@@ -240,7 +240,7 @@ fn screen_to_clip(screen_coord: vec2<f32>, depth: f32) -> vec4<f32> {
 
   fn reconstruct_view_space_position( uv: vec2<f32>, depth: f32) -> vec3<f32> {
     let clip_xy = vec2<f32>(uv.x * 2.0 - 1.0, 1.0 - 2.0 * uv.y);
-    let t = view.inverse_projection * vec4<f32>(clip_xy, depth, 1.0);
+    let t = view.view_from_clip * vec4<f32>(clip_xy, depth, 1.0);
     let view_xyz = t.xyz / t.w;
     return view_xyz;
 }
@@ -249,7 +249,7 @@ fn screen_to_clip(screen_coord: vec2<f32>, depth: f32) -> vec4<f32> {
 
 fn clip_to_view(clip_pos: vec4<f32>) -> vec3<f32> {
     // Transform from clip space to view space using the inverse projection matrix
-    let view_space = view.inverse_projection * clip_pos;
+    let view_space = view.view_from_clip * clip_pos;
     let view_space_pos = view_space.xyz / view_space.w;
 
     // Transform from view space to world space using the inverse view matrix
