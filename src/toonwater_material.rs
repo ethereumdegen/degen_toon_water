@@ -20,14 +20,14 @@ pub fn build_toon_water_material(
 
 
         //do these do anything ?
-        let base_color = Color::rgba(1.0,1.0,1.0,1.0);
-        let emissive = Color::rgba(1.0,1.0,1.0,1.0);
+        let base_color = LinearRgba::new(1.0,1.0,1.0,1.0);
+        let emissive = LinearRgba::new(1.0,1.0,1.0,1.0);
  
   
             ExtendedMaterial {
                      base: StandardMaterial {
-			            base_color,
-			            emissive,
+			            base_color: base_color.into(),
+			            emissive: emissive.into(),
 			            opaque_render_method: OpaqueRendererMethod::Auto,
 			            alpha_mode: AlphaMode::Blend,
 			            double_sided: true,
@@ -54,10 +54,10 @@ pub type ToonWaterMaterialBundle = MaterialMeshBundle<ToonWaterMaterial >;
 #[derive(Clone, ShaderType, Debug)]
 pub struct ToonWaterMaterialUniforms {
 
-	pub depth_gradient_shallow: Color,
-    pub depth_gradient_deep: Color,
+	pub depth_gradient_shallow: LinearRgba,
+    pub depth_gradient_deep: LinearRgba,
     pub depth_max_distance: f32,
-    pub foam_color: Color,
+    pub foam_color: LinearRgba,
     pub surface_noise_scroll: Vec2,
     pub surface_noise_cutoff: f32,
     pub surface_distortion_amount: f32,
@@ -74,10 +74,10 @@ pub struct ToonWaterMaterialUniforms {
 impl Default for ToonWaterMaterialUniforms {
     fn default() -> Self {
         Self {
-		    depth_gradient_shallow: Color::rgba(0.325, 0.807, 0.971, 0.725),
-            depth_gradient_deep: Color::rgba(0.086, 0.307, 0.7, 0.949),
+		    depth_gradient_shallow: LinearRgba::new(0.325, 0.807, 0.971, 0.725),
+            depth_gradient_deep: LinearRgba::new(0.086, 0.307, 0.7, 0.949),
             depth_max_distance: 2.0,
-            foam_color: Color::rgba(0.9,0.9,0.9,1.0),
+            foam_color: LinearRgba::new(0.9,0.9,0.9,1.0),
             surface_noise_scroll: Vec2::new(0.1,0.1),
             surface_noise_cutoff:  0.9,
             surface_distortion_amount:  0.14,

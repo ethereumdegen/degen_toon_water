@@ -129,7 +129,7 @@ fn setup(
     });
 
      commands.insert_resource(AmbientLight {
-        color: Color::ANTIQUE_WHITE,
+        color: LinearRgba::new(1.0,1.0,1.0,1.0).into(),
         brightness: 4000.0,
     });
 
@@ -150,7 +150,7 @@ fn setup(
     commands.spawn(PbrBundle {
         mesh: meshes.add(Cuboid::new(555.0, 1.0, 555.0)),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.1,0.1,0.1).into(),
+            base_color: Color::srgb(0.1,0.1,0.1).into(),
             ..Default::default()
         }),
         transform: Transform::from_xyz(0.0, -7.0, 0.0),
@@ -162,7 +162,7 @@ fn setup(
     commands.spawn(PbrBundle {
         mesh: meshes.add(Cuboid::new(1.0, 7.0, 1.0)),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            base_color: Color::srgb(0.6,0.6,0.6).into(),
             ..Default::default()
         }),
         transform: Transform::from_xyz(0.0, 0.2, 0.0),
@@ -174,7 +174,7 @@ fn setup(
     commands.spawn(PbrBundle {
         mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            base_color: Color::srgb(0.6,0.6,0.6).into(),
             ..Default::default()
         }),
         transform: Transform::from_xyz(-4.0, -1.0, -8.0),
@@ -186,7 +186,7 @@ fn setup(
      commands.spawn(PbrBundle {
         mesh: meshes.add(Torus::new(5.0, 4.0 )),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            base_color: Color::srgb(0.6,0.6,0.6).into(),
             ..Default::default()
         }),
         transform: Transform::from_xyz(0.0, -0.2, 0.0),
@@ -197,7 +197,7 @@ fn setup(
    commands.spawn(PbrBundle {
         mesh: meshes.add(Torus::new(1.0, 1.0 )),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.6,0.6,0.6).into(),
+            base_color: Color::srgb(0.6,0.6,0.6).into(),
             ..Default::default()
         }),
         transform: Transform::from_xyz(2.0, -0.6, 2.0),

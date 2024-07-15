@@ -53,11 +53,11 @@ impl Plugin for DegenToonWaterPlugin {
 
  
 
-        let mut images = app.world.resource_mut::<Assets<Image>>();
+        let mut images = app.world_mut().resource_mut::<Assets<Image>>();
   
-        images.insert(DEFAULT_NOISE_MAP_HANDLE, noise_image );
+        images.insert(& DEFAULT_NOISE_MAP_HANDLE, noise_image );
 
-        images.insert(DEFAULT_DISTORTION_MAP_HANDLE, distortion_image );
+        images.insert(& DEFAULT_DISTORTION_MAP_HANDLE, distortion_image );
    
 
          
