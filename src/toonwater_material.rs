@@ -49,7 +49,7 @@ pub fn build_toon_water_material(
 }
 
 //pub type AnimatedMaterialExtension = ExtendedMaterial<StandardMaterial, AnimatedMaterial>;
-pub type ToonWaterMaterialBundle = MaterialMeshBundle<ToonWaterMaterial >;
+//pub type ToonWaterMaterialBundle = MaterialMeshBundle<ToonWaterMaterial >;
 
 #[derive(Clone, ShaderType, Debug)]
 pub struct ToonWaterMaterialUniforms {

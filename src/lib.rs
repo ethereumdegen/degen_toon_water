@@ -1,11 +1,11 @@
 
 use bevy::render::render_asset::RenderAssetUsages;
-use bevy::render::texture::{CompressedImageFormats, ImageFormat, ImageSampler, ImageType};
+ 
 use toonwater_material::ToonWaterMaterial;
 use std::io::{Cursor, Read};
 use bevy::asset::load_internal_asset;
 use bevy::prelude::*;
-use bevy::render::texture::ImageLoader;
+use bevy::image::{CompressedImageFormats, ImageLoader, ImageSampler, ImageType};
 pub mod toonwater_material;
 pub mod camera;
 
@@ -94,7 +94,7 @@ pub const DEFAULT_DISTORTION_MAP_HANDLE: Handle<Image> =
  fn update_material_coord_scale (
 
 
-    material_query: Query < ( &Handle<ToonWaterMaterial>, &GlobalTransform)  >,
+    material_query: Query < ( &MeshMaterial3d<ToonWaterMaterial>, &GlobalTransform)  >,
     mut materials: ResMut<Assets<ToonWaterMaterial>>
 ){
 
