@@ -78,7 +78,7 @@ impl Default for ToonWaterMaterialUniforms {
             depth_gradient_deep: LinearRgba::new(0.086, 0.307, 0.7, 0.949),
             depth_max_distance: 2.0,
             foam_color: LinearRgba::new(0.9,0.9,0.9,1.0),
-            surface_noise_scroll: Vec2::new(0.1,0.1),
+            surface_noise_scroll: Vec2::new(0.03,0.03),
             surface_noise_cutoff:  0.9,
             surface_distortion_amount:  0.14,
             foam_max_distance: 0.6,  //foam for an obstruction in the water (from normal dot product)

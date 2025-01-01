@@ -13,7 +13,7 @@ use bevy::{gltf::GltfMesh, utils::HashMap};
 //use bevy::gltf::Gltf;
  
 
-use bevy::core_pipeline::bloom::BloomSettings;
+use bevy::core_pipeline::bloom::{Bloom, BloomSettings};
 
 use bevy::core_pipeline::tonemapping::Tonemapping;
 
@@ -112,21 +112,23 @@ fn setup(
 
     //you can configure the water easily like this 
     water_material.extension.custom_uniforms.noise_map_scale = 2.0;
+    water_material.extension.custom_uniforms.surface_noise_cutoff = 0.84; //foaminess 
 
   
     let toon_water_material_handle = toon_water_materials.add( water_material );
  
  
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
+    commands.spawn((
+
+        Transform::from_xyz(8.0, 16.0, 8.0),
+        PointLight {
             intensity: 2000.0,
             range: 100.,
             shadows_enabled: false,
             ..default()
-        },
-        transform: Transform::from_xyz(8.0, 16.0, 8.0),
-        ..default()
-    });
+        }
+
+  ));
 
      commands.insert_resource(AmbientLight {
         color: LinearRgba::new(1.0,1.0,1.0,1.0).into(),
@@ -135,90 +137,136 @@ fn setup(
 
     // Water Plane
     // To scale the water plane, be sure to only adjust the scale. If you adjust the mesh vertex size, the shader may not scale properly.
-    commands.spawn((MaterialMeshBundle {
-            mesh: meshes.add(Plane3d::default().mesh().size(1.0, 1.0)),
-            material:  toon_water_material_handle,
-
-            transform: Transform::from_scale( (5000.0,2.0,5000.0).into()  ),
-            ..default()
-        } ));
+    commands.spawn((
 
 
+         Mesh3d(   meshes.add(Plane3d::default().mesh().size(1.0, 1.0))  ), 
+         MeshMaterial3d( toon_water_material_handle ) ,
+         Transform::from_scale( (5000.0,2.0,5000.0).into()  ),
 
-
-
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Cuboid::new(555.0, 1.0, 555.0)),
-        material: materials.add(StandardMaterial {
-            base_color: Color::srgb(0.1,0.1,0.1).into(),
-            ..Default::default()
-        }),
-        transform: Transform::from_xyz(0.0, -7.0, 0.0),
-        ..default()
-    });
+  ));
 
 
 
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Cuboid::new(1.0, 7.0, 1.0)),
-        material: materials.add(StandardMaterial {
+
+
+    commands.spawn(  (
+
+
+
+            Mesh3d(   meshes.add(Cuboid::new(555.0, 1.0, 555.0))  ), 
+            MeshMaterial3d (  materials.add(StandardMaterial {
+                base_color: Color::srgb(0.1,0.1,0.1).into(),
+                ..Default::default()
+            }  )) ,
+
+            Transform::from_xyz(0.0, -7.0, 0.0),
+       
+    ) );
+
+
+
+    commands.spawn(
+
+
+        (
+
+            Mesh3d(   meshes.add(Cuboid::new(1.0, 7.0, 1.0))  ), 
+            MeshMaterial3d (  materials.add(StandardMaterial {
             base_color: Color::srgb(0.6,0.6,0.6).into(),
             ..Default::default()
-        }),
-        transform: Transform::from_xyz(0.0, 0.2, 0.0),
-        ..default()
-    });
+                } )) ,
+
+             Transform::from_xyz(0.0, 0.2, 0.0),
+            )
+
+       );
 
 
     //cube just under water surface but parallel
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-        material: materials.add(StandardMaterial {
-            base_color: Color::srgb(0.6,0.6,0.6).into(),
-            ..Default::default()
-        }),
-        transform: Transform::from_xyz(-4.0, -1.0, -8.0),
-        ..default()
-    });
+    commands.spawn(
 
 
 
-     commands.spawn(PbrBundle {
-        mesh: meshes.add(Torus::new(5.0, 4.0 )),
-        material: materials.add(StandardMaterial {
-            base_color: Color::srgb(0.6,0.6,0.6).into(),
-            ..Default::default()
-        }),
-        transform: Transform::from_xyz(0.0, -0.2, 0.0),
-        ..default()
-    });
+        (
 
 
-   commands.spawn(PbrBundle {
-        mesh: meshes.add(Torus::new(1.0, 1.0 )),
-        material: materials.add(StandardMaterial {
-            base_color: Color::srgb(0.6,0.6,0.6).into(),
-            ..Default::default()
-        }),
-        transform: Transform::from_xyz(2.0, -0.6, 2.0),
-        ..default()
-    });
+             Mesh3d(  meshes.add(Cuboid::new(1.0, 1.0, 1.0))  ), 
+            MeshMaterial3d (  materials.add(StandardMaterial {
+                    base_color: Color::srgb(0.6,0.6,0.6).into(),
+                    ..Default::default()
+                } )) ,
+
+             Transform::from_xyz(-4.0, -1.0, -8.0),
+            )
+
+ 
+
+      );
+
+
+       commands.spawn(
+
+
+
+        (
+
+
+             Mesh3d( meshes.add(Torus::new(5.0, 4.0 )) ), 
+            MeshMaterial3d (  materials.add(StandardMaterial {
+                base_color: Color::srgb(0.6,0.6,0.6).into(),
+                ..Default::default()
+            } )) ,
+
+             Transform::from_xyz(0.0, -0.2, 0.0)
+            )
+
+ 
+
+      );
+
+ 
+
+         commands.spawn(
+
+
+
+        (
+
+
+             Mesh3d( meshes.add(Torus::new(1.0, 1.0 )) ), 
+            MeshMaterial3d (  materials.add(StandardMaterial {
+                  base_color: Color::srgb(0.6,0.6,0.6).into(),
+                ..Default::default()
+            } )) ,
+
+             Transform::from_xyz(2.0, -0.6, 2.0),
+            )
+
+ 
+
+      );
+
+ 
+ 
 
 
     commands.spawn((
-        Camera3dBundle {
-            camera: Camera {
+        Camera3d::default() , 
+        Camera {
                 hdr: true, // 
                 ..default()
             },
-            tonemapping: Tonemapping::TonyMcMapface,
-            transform: Transform::from_xyz(0.0, 6., 12.0)
+           Tonemapping::TonyMcMapface,
+            Transform::from_xyz(0.0, 6., 12.0)
                 .looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
-            ..default()
-        },
+           
+        
+
+      
       //  BloomSettings::default(), // 2. Enable bloom for the camera
 
-         BloomSettings::OLD_SCHOOL,
+         Bloom::OLD_SCHOOL,
         DepthPrepass,
         NormalPrepass,  //needed for water ! 
        

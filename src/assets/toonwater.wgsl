@@ -193,13 +193,24 @@ fn fragment(
         (distorted_plane_uv.x + (time_base * toon_water_uniforms.surface_noise_scroll.x)) %1.0 ,
         (distorted_plane_uv.y + (time_base * toon_water_uniforms.surface_noise_scroll.y))  %1.0 
     );
+
+     var noise_uv_alt = vec2<f32>(  //this is out of sync time-wise which makes a nice effect when combined
+        (distorted_plane_uv.x + (time_base *1.1 * toon_water_uniforms.surface_noise_scroll.x)) % 1.0 ,
+        (distorted_plane_uv.y + (time_base  *1.1 * toon_water_uniforms.surface_noise_scroll.y))  %1.0 
+    );
     
 
-      
+   let distortion_noise_sample = textureSample(surface_distortion_texture, surface_distortion_sampler, noise_uv_alt    )   ;
+
    let surface_noise_sample = textureSample(surface_noise_texture, surface_noise_sampler, noise_uv    )   ;
 
+
+   let smoothstep_tolerance_band = 0.01 ; //controls foam edge sharpness
+
+   let combined_noise_sample =  surface_noise_sample.r * distortion_noise_sample.g * 2.0 ;
+
      
-    let surface_noise = smoothstep(surface_noise_cutoff - 0.01, surface_noise_cutoff + 0.01,   surface_noise_sample.r);
+    let surface_noise = smoothstep(surface_noise_cutoff -  smoothstep_tolerance_band, surface_noise_cutoff +  smoothstep_tolerance_band ,    combined_noise_sample );
 
   //let surface_noise =  step( surface_noise_cutoff, surface_noise_sample.r);
 
