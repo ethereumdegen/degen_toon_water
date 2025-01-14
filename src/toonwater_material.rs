@@ -32,6 +32,7 @@ pub fn build_toon_water_material(
 			            alpha_mode: AlphaMode::Blend,
 			            double_sided: true,
 			            cull_mode: None, 
+                        unlit: true ,
 
 			            ..Default::default()
 			        },
