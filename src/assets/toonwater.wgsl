@@ -209,15 +209,106 @@ fn fragment(
 
    let combined_noise_sample =  surface_noise_sample.r * distortion_noise_sample.g * 2.0 ;
 
-     
-    let surface_noise = smoothstep(surface_noise_cutoff -  smoothstep_tolerance_band, surface_noise_cutoff +  smoothstep_tolerance_band ,    combined_noise_sample );
+     // this is our foam 
+    var surface_noise = smoothstep(surface_noise_cutoff -  smoothstep_tolerance_band, surface_noise_cutoff +  smoothstep_tolerance_band ,    combined_noise_sample );
+
+
+
+      // only do surface noise - special bands ? 
+
+
+
+
+
+
 
   //let surface_noise =  step( surface_noise_cutoff, surface_noise_sample.r);
+
+
+
+
+
+
+
+
+
+    // ---   fog cloud noise 
+
+ 
+
+          let fog_cloud_time_base = ( globals.time   * 0.01 )   % 1.0 ;
+
+          let fog_cloud_world_pos_offset = vec2<f32>(   abs(mesh.world_position .x +  globals.time)  ,   abs(mesh.world_position .z ) ) * 0.01 ;
+          let fog_cloud_scroll =  vec2<f32>( fog_cloud_time_base  ,  fog_cloud_time_base  )  ;
+
+            //aso need sine wave time shit on this uv input 
+        var  fog_cloud_noise_uv = fog_cloud_world_pos_offset + fog_cloud_scroll ; 
+        
+         fog_cloud_noise_uv.x = fog_cloud_noise_uv.x % 1.0;  
+         fog_cloud_noise_uv.y = fog_cloud_noise_uv.y % 1.0;  
+
+        let fog_cloud_sample = textureSample(surface_distortion_texture, surface_distortion_sampler, fog_cloud_noise_uv)  ;
+
+
+       
+         let highlight_color = vec4<f32>(1.0, 1.0, 1.0, 1.0);
+         let shadow_color = vec4<f32>(0.5,0.5,0.5, 1.0);
+       
+         let fog_cloud_color = mix(shadow_color, highlight_color, fog_cloud_sample.r  );
+
+        
+    // ---------
+            // sun band 
+
+    let world_position = mesh.world_position.xyz;
+    let camera_position = view.world_position;
+
+
+   // let view_direction = normalize(world_position - camera_position);
+
+     //let sun_direction  = normalize( vec3<f32>(0.3,  0.3, 0.3) ) ;  // for now ... 
+  
+    // let sun_band_direction = normalize (mix( view_direction , sun_direction , 0.5 ));
+
+    let sun_band =  calculate_sun_band( world_position, camera_position    )    ;
+
+    
+
+
+
+
+// -----------
+
+
+
+
+  //apply the foam ! ----
+
+  surface_noise *= fog_cloud_color .r ;
+
+  surface_noise *= (sun_band + 0.05 ); 
+  // only render the foam (surface noise)   in 'sun bands'  which are diagonal bands projects out of view camera  
+
+
+
+
+
 
     var surface_noise_color = toon_water_uniforms.foam_color;
     surface_noise_color.a *= surface_noise;
 
     var color = alpha_blend(surface_noise_color, water_color);
+//----
+
+    
+    
+    //apply the fog clouds 
+     color *= fog_cloud_color  ; 
+
+
+
+
+
 
 
  //  color = vec4( depth_diff,depth_diff,depth_diff ,1.0);
@@ -226,8 +317,97 @@ fn fragment(
 
 
   //  color = vec4(surface_noise   ,surface_noise   , surface_noise ,1.0);
-    return color;
+ 
+ //  return vec4( sun_band , 0.0,0.0,1.0   );
+
+      return color ; 
 }
+
+// Camera-based sun reflection bands compatible with Bevy View structure
+fn calculate_sun_band(world_position: vec3<f32>, camera_position: vec3<f32>) -> f32 {
+    let band_frequency = 2.0;  // Controls how many bands appear
+    let band_sharpness = 5.0;  // Controls how sharp the bands are
+    let band_angle = 0.3;      // Controls the angle of the bands (0.0-1.0)
+    
+    // Calculate direction from camera to fragment
+    let view_direction = normalize(world_position - camera_position);
+    
+    // Extract camera basis vectors from world_from_view matrix
+    // In Bevy's View structure, world_from_view is the camera's transform
+    
+    // Forward vector (negative z in view space becomes world space)
+    let camera_forward = -normalize(vec3<f32>(
+        view.world_from_view[0][2],
+        view.world_from_view[1][2],
+        view.world_from_view[2][2]
+    ));
+    
+    // Right vector (positive x in view space becomes world space)
+    let camera_right = normalize(vec3<f32>(
+        view.world_from_view[0][0],
+        view.world_from_view[1][0],
+        view.world_from_view[2][0]
+    ));
+    
+    // Up vector (positive y in view space becomes world space)
+    let camera_up = normalize(vec3<f32>(
+        view.world_from_view[0][1],
+        view.world_from_view[1][1],
+        view.world_from_view[2][1]
+    ));
+    
+    // Create a sun direction that's offset from camera view
+    // This creates a dynamic sun direction that moves with the camera
+    // but stays at a consistent angle from the view direction
+    let sun_direction = normalize(
+        camera_forward + 
+        camera_right * cos(globals.time * 0.1) * band_angle + 
+        camera_up * sin(globals.time * 0.1) * band_angle
+    );
+    
+    // Fixed up-facing water normal
+    let water_normal = vec3<f32>(0.0, 1.0, 0.0);
+    
+    // Calculate reflection vector
+    let reflection_vector = reflect(view_direction, water_normal);
+    
+    // Create bands based on dot product between reflection and sun
+    let alignment = dot(reflection_vector, sun_direction) * 0.5 + 0.5; // Remap to 0-1
+    
+    // Create repeating bands
+    let bands = sin(alignment * band_frequency * 3.14159) * 0.5 + 0.5;
+    
+    // Make bands sharper with pow function
+    let sharp_bands = pow(bands, band_sharpness);
+    
+    return sharp_bands;
+}
+
+
+
+/*
+fn calculate_sun_band(view_direction: vec3<f32>,  sun_direction: vec3<f32>) -> f32 {
+    let sun_band_sharpness = 32.0; // Higher value = sharper band
+    let sun_band_brightness = 1.0;
+
+      // Use a fixed up-facing normal (0,1,0) for flat water
+    let water_normal = vec3<f32>(0.0, 1.0, 0.0);
+
+    
+    // Calculate reflection vector (how view direction reflects off water surface)
+    // Note: view_direction should point FROM the camera TO the surface
+    // If your view_direction is the opposite, you'll need to negate it first
+    let reflection_vector = reflect(view_direction, water_normal);
+    
+    // Calculate how closely this reflection aligns with the sun direction
+    let sun_alignment = max(0.0, dot(reflection_vector, sun_direction));
+    
+    // Apply a power function to make the band sharper
+    let sun_band = pow(sun_alignment, sun_band_sharpness) * sun_band_brightness;
+    
+    return sun_band;
+}*/
+
 
 fn alpha_blend(top: vec4<f32>, bottom: vec4<f32>) -> vec4<f32> {
     let color = top.rgb * top.a + bottom.rgb * (1.0 - top.a);
